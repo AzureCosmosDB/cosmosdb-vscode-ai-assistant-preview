@@ -1,0 +1,14 @@
+{
+  "previewName": "cosmosdb-vscode-ai-assistant-private-preview",
+  "channel": "private-preview",
+  "version": "0.33.3",
+  "releaseDate": "2026-04-09",
+  "artifacts": [
+    {
+      "name": "vscode-cosmosdb-0.33.3.vsix",
+      "path": "downloads/vscode-cosmosdb-0.33.3.vsix",
+      "sha256": "REPLACE_WITH_SHA256"
+    }
+  ],
+  "notes": "Update version, artifact names, and SHA before each preview drop."
+}

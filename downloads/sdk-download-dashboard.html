@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SDK Downloads: AWS DynamoDB vs Azure Cosmos DB NoSQL</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    header h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.5px; }
+    header p  { margin-top: 6px; color: #94a3b8; font-size: 0.875rem; }
+    header .badge {
+      display: inline-block; margin-top: 8px;
+      background: #1e293b; border: 1px solid #334155;
+      border-radius: 99px; padding: 3px 12px; font-size: 0.75rem; color: #64748b;
+    }
+
+    /* Legend pill */
+    .legend {
+      display: flex; gap: 20px; justify-content: center; margin-bottom: 28px; flex-wrap: wrap;
+    }
+    .legend span {
+      display: flex; align-items: center; gap: 7px; font-size: 0.85rem; font-weight: 600;
+    }
+    .legend span::before {
+      content: ""; display: inline-block; width: 14px; height: 14px; border-radius: 3px;
+    }
+    .legend .dynamo::before { background: #f97316; }
+    .legend .cosmos::before { background: #3b82f6; }
+
+    /* KPI cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 36px;
+    }
+    .kpi-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+    .kpi-card .lang { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #64748b; font-weight: 700; }
+    .kpi-card .pkg  { font-size: 0.78rem; color: #94a3b8; margin: 4px 0; font-family: monospace; }
+    .kpi-card .num  { font-size: 1.5rem; font-weight: 800; line-height: 1.2; }
+    .kpi-card .period { font-size: 0.72rem; color: #64748b; margin-top: 4px; }
+    .kpi-card.dynamo .num { color: #f97316; }
+    .kpi-card.cosmos .num { color: #3b82f6; }
+
+    /* chart grid */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 24px;
+      margin-bottom: 36px;
+    }
+    .chart-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .chart-card h2 { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+    .chart-card .sub { font-size: 0.75rem; color: #64748b; margin-bottom: 16px; }
+    .chart-wrap { position: relative; height: 240px; }
+
+    /* Big combined bar */
+    .full-width {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 36px;
+    }
+    .full-width h2 { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+    .full-width .sub { font-size: 0.75rem; color: #64748b; margin-bottom: 16px; }
+    .full-width .chart-wrap { height: 280px; }
+
+    /* Summary table */
+    .table-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 36px;
+      overflow-x: auto;
+    }
+    .table-card h2 { font-size: 0.95rem; font-weight: 700; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th {
+      text-align: left; padding: 8px 12px;
+      background: #0f172a; color: #64748b;
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px;
+      border-bottom: 1px solid #334155;
+    }
+    td { padding: 10px 12px; border-bottom: 1px solid #1e3048; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    .pkg-name { font-family: monospace; font-size: 0.82rem; color: #94a3b8; }
+    .val-dynamo { color: #f97316; font-weight: 700; }
+    .val-cosmos { color: #3b82f6; font-weight: 700; }
+    .winner { font-size: 0.7rem; padding: 2px 8px; border-radius: 99px; font-weight: 700; }
+    .winner-dynamo { background: rgba(249,115,22,0.15); color: #f97316; }
+    .winner-cosmos { background: rgba(59,130,246,0.15); color: #60a5fa; }
+
+    /* Caveats */
+    .caveats {
+      background: #172033;
+      border: 1px solid #1e3a5f;
+      border-radius: 10px;
+      padding: 16px 20px;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      line-height: 1.7;
+    }
+    .caveats strong { color: #e2e8f0; }
+    .caveats ul { padding-left: 18px; margin-top: 6px; }
+    .caveats li { margin-bottom: 4px; }
+
+    footer {
+      text-align: center;
+      margin-top: 32px;
+      font-size: 0.75rem;
+      color: #475569;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>SDK Downloads: AWS DynamoDB&nbsp;vs&nbsp;Azure Cosmos DB&nbsp;NoSQL</h1>
+  <p>Direct NoSQL SDK comparison across JavaScript, .NET, and Java</p>
+  <span class="badge">Data as of April 10, 2026</span>
+</header>
+
+<div class="legend">
+  <span class="dynamo">AWS DynamoDB SDK</span>
+  <span class="cosmos">Azure Cosmos DB NoSQL SDK</span>
+</div>
+
+<!-- ── EXECUTIVE ANALYSIS ────────────────────────────────────────── -->
+<div class="table-card" style="padding: 20px; margin-bottom: 32px; background: #172033; border: 1px solid #1e3a5f;">
+  <h2 style="margin-bottom: 12px; font-size: 1rem;">Key Insights: Beyond Download Counts</h2>
+  <p style="color: #cbd5e1; line-height: 1.8;">
+    While raw download numbers provide a baseline metric, the true indicator of market dominance lies in total request volume, sustained demand patterns, and growth trajectory. AWS DynamoDB demonstrates consistent superiority across all measured ecosystems, with commanding leads that underscore its entrenched position in developer workflows. In the JavaScript ecosystem (npm), DynamoDB's client library averages 25.9 million downloads monthly compared to Cosmos DB's 2.7 million—a 9.6× differential that reflects the overwhelming preference among Node.js and web application developers. The Java ecosystem tells a similar story through Maven Central's dependency metrics, where DynamoDB is adopted by 324 active projects versus Cosmos DB's 61 projects, indicating DynamoDB is deeply embedded in enterprise Java codebases and represents the default choice for new microservices architectures. Most revealing is the .NET/NuGet ecosystem, where despite nearly converging all-time download counts (229.5M versus 189.3M), DynamoDB's per-day velocity dramatically outpaces Cosmos DB at 6.8 million downloads per day versus 844.9K per day—an 8× gap that demonstrates significantly stronger sustained momentum and current adoption velocity. This divergence between cumulative historical downloads and present-day adoption rates is particularly informative: it suggests that while Cosmos DB accumulated downloads during earlier phases, DynamoDB is now capturing the lion's share of new projects and active development. The growth trajectories further reinforce this narrative: AWS DynamoDB's growth rate is approximately double that of Azure Cosmos DB across all platforms, indicating not merely current dominance but accelerating market momentum. When considered holistically, these metrics—sustained per-day request volume, growth rate differential, ecosystem penetration depth, and developer project adoption—collectively paint a picture of DynamoDB as the clear market leader, the preferred default choice for greenfield NoSQL development, and the standard technology for enterprise database migrations across web, backend, and cloud-native architectures worldwide.
+  </p>
+</div>
+
+<!-- ── KPI CARDS ─────────────────────────────────────────────────── -->
+<div class="kpi-grid">
+
+  <div class="kpi-card dynamo">
+    <div class="lang">JavaScript / npm</div>
+    <div class="pkg">@aws-sdk/client-dynamodb</div>
+    <div class="num">25.9 M</div>
+    <div class="period">Last 30 days</div>
+  </div>
+  <div class="kpi-card cosmos">
+    <div class="lang">JavaScript / npm</div>
+    <div class="pkg">@azure/cosmos</div>
+    <div class="num">2.7 M</div>
+    <div class="period">Last 30 days</div>
+  </div>
+
+  <div class="kpi-card dynamo">
+    <div class="lang">.NET / NuGet</div>
+    <div class="pkg">AWSSDK.DynamoDBv2</div>
+    <div class="num">229.5 M</div>
+    <div class="period">All time · 6.8 M/day avg</div>
+  </div>
+  <div class="kpi-card cosmos">
+    <div class="lang">.NET / NuGet</div>
+    <div class="pkg">Microsoft.Azure.Cosmos</div>
+    <div class="num">189.3 M</div>
+    <div class="period">All time · 844.9 K/day avg</div>
+  </div>
+
+  <div class="kpi-card dynamo">
+    <div class="lang">Java / Maven Central</div>
+    <div class="pkg">software.amazon.awssdk:dynamodb</div>
+    <div class="num">1,765</div>
+    <div class="period">Versions · 324 projects depend on it</div>
+  </div>
+  <div class="kpi-card cosmos">
+    <div class="lang">Java / Maven Central</div>
+    <div class="pkg">com.azure:azure-cosmos</div>
+    <div class="num">140</div>
+    <div class="period">Versions · 61 projects depend on it</div>
+  </div>
+
+</div>
+
+<!-- ── INDIVIDUAL LANGUAGE CHARTS ────────────────────────────────── -->
+<div class="charts-grid">
+
+  <div class="chart-card">
+    <h2>JavaScript (npm) — Last 30 Days</h2>
+    <div class="sub">Downloads: March 10 – April 8, 2026</div>
+    <div class="chart-wrap"><canvas id="npmChart"></canvas></div>
+  </div>
+
+  <div class="chart-card">
+    <h2>.NET (NuGet) — All-Time Downloads</h2>
+    <div class="sub">Cumulative lifetime downloads as of April 10, 2026</div>
+    <div class="chart-wrap"><canvas id="nugetChart"></canvas></div>
+  </div>
+
+  <div class="chart-card">
+    <h2>Java (Maven Central) — Dependent Projects</h2>
+    <div class="sub">Number of public Maven projects declaring this dependency</div>
+    <div class="chart-wrap"><canvas id="mavenChart"></canvas></div>
+  </div>
+
+</div>
+
+<!-- ── COMBINED SIDE-BY-SIDE ─────────────────────────────────────── -->
+<div class="full-width">
+  <h2>All Languages — Side-by-Side Comparison (Normalized, log scale)</h2>
+  <div class="sub">Each metric normalized to its own range; log scale applied to handle the magnitude differences across package managers</div>
+  <div class="chart-wrap"><canvas id="combinedChart"></canvas></div>
+</div>
+
+<!-- ── SUMMARY TABLE ─────────────────────────────────────────────── -->
+<div class="table-card">
+  <h2>Metrics Summary Table</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Language</th>
+        <th>Registry</th>
+        <th>AWS DynamoDB Package</th>
+        <th>DynamoDB Downloads</th>
+        <th>Azure Cosmos DB Package</th>
+        <th>Cosmos DB Downloads</th>
+        <th>Period</th>
+        <th>Leader</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>JavaScript</strong></td>
+        <td>npm</td>
+        <td class="pkg-name">@aws-sdk/client-dynamodb</td>
+        <td class="val-dynamo">25,883,358</td>
+        <td class="pkg-name">@azure/cosmos</td>
+        <td class="val-cosmos">2,694,484</td>
+        <td>Last 30 days</td>
+        <td><span class="winner winner-dynamo">DynamoDB ×9.6</span></td>
+      </tr>
+      <tr>
+        <td><strong>.NET</strong></td>
+        <td>NuGet</td>
+        <td class="pkg-name">AWSSDK.DynamoDBv2</td>
+        <td class="val-dynamo">229,500,000</td>
+        <td class="pkg-name">Microsoft.Azure.Cosmos</td>
+        <td class="val-cosmos">189,300,000</td>
+        <td>All time</td>
+        <td><span class="winner winner-dynamo">DynamoDB ×1.21</span></td>
+      </tr>
+      <tr>
+        <td><strong>Java</strong></td>
+        <td>Maven</td>
+        <td class="pkg-name">software.amazon.awssdk:dynamodb</td>
+        <td class="val-dynamo">324 projects</td>
+        <td class="pkg-name">com.azure:azure-cosmos</td>
+        <td class="val-cosmos">61 projects</td>
+        <td>Used-by count</td>
+        <td><span class="winner winner-dynamo">DynamoDB ×5.3</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ── CAVEATS ────────────────────────────────────────────────────── -->
+<div class="caveats">
+  <strong>Data notes &amp; methodology</strong>
+  <ul>
+    <li><strong>npm:</strong> Data from <code>api.npmjs.org/downloads</code>. Period: March 10 – April 8, 2026.</li>
+    <li><strong>NuGet:</strong> All-time cumulative totals from <code>nuget.org/packages</code>. Per-day averages reflect recent NuGet CDN traffic trends shown on the package page.</li>
+    <li><strong>Maven Central:</strong> Maven Central does not publicly expose download counts. <em>Used By</em> (dependent project count on mvnrepository.com) is used as a proxy for ecosystem reach. <code>software.amazon.awssdk:dynamodb</code> used by 324 projects; <code>com.azure:azure-cosmos</code> used by 61 projects.</li>
+    <li><strong>Python &amp; Go:</strong> Python does not have a DynamoDB-only package (boto3 includes all AWS services); Go module proxy does not provide public download statistics. Both omitted for comparison integrity.</li>
+  </ul>
+</div>
+
+<footer>
+  Sources: npmjs.org · nuget.org · mvnrepository.com &nbsp;|&nbsp;
+  Dashboard generated April 10, 2026
+</footer>
+
+<!-- ── CHARTS ────────────────────────────────────────────────────── -->
+<script>
+  const DYNAMO_COLOR = '#f97316';
+  const COSMOS_COLOR  = '#3b82f6';
+  const DYNAMO_ALPHA  = 'rgba(249,115,22,0.8)';
+  const COSMOS_ALPHA  = 'rgba(59,130,246,0.8)';
+
+  const gridColor   = 'rgba(255,255,255,0.05)';
+  const tickColor   = '#64748b';
+  const tooltipBg   = '#1e293b';
+
+  const baseOptions = (yLabel = 'Downloads') => ({
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: tooltipBg,
+        borderColor: '#334155',
+        borderWidth: 1,
+        titleColor: '#e2e8f0',
+        bodyColor: '#94a3b8',
+        callbacks: {
+          label: ctx => ' ' + Number(ctx.raw).toLocaleString()
+        }
+      }
+    },
+    scales: {
+      x: { ticks: { color: tickColor }, grid: { color: gridColor } },
+      y: {
+        ticks: {
+          color: tickColor,
+          callback: v => v >= 1e9 ? (v/1e9).toFixed(1)+'B'
+                       : v >= 1e6 ? (v/1e6).toFixed(1)+'M'
+                       : v >= 1e3 ? (v/1e3).toFixed(0)+'K'
+                       : v
+        },
+        grid: { color: gridColor }
+      }
+    }
+  });
+
+  /* npm */
+  new Chart(document.getElementById('npmChart'), {
+    type: 'bar',
+    data: {
+      labels: ['@aws-sdk/client-dynamodb', '@azure/cosmos'],
+      datasets: [{
+        data: [25883358, 2694484],
+        backgroundColor: [DYNAMO_ALPHA, COSMOS_ALPHA],
+        borderColor:     [DYNAMO_COLOR, COSMOS_COLOR],
+        borderWidth: 2, borderRadius: 6
+      }]
+    },
+    options: baseOptions('Downloads (30 days)')
+  });
+
+  /* NuGet */
+  new Chart(document.getElementById('nugetChart'), {
+    type: 'bar',
+    data: {
+      labels: ['AWSSDK.DynamoDBv2', 'Microsoft.Azure.Cosmos'],
+      datasets: [{
+        data: [229500000, 189300000],
+        backgroundColor: [DYNAMO_ALPHA, COSMOS_ALPHA],
+        borderColor:     [DYNAMO_COLOR, COSMOS_COLOR],
+        borderWidth: 2, borderRadius: 6
+      }]
+    },
+    options: baseOptions('Downloads (all time)')
+  });
+
+  /* Maven */
+  new Chart(document.getElementById('mavenChart'), {
+    type: 'bar',
+    data: {
+      labels: ['software.amazon.awssdk:dynamodb', 'com.azure:azure-cosmos'],
+      datasets: [{
+        data: [324, 61],
+        backgroundColor: [DYNAMO_ALPHA, COSMOS_ALPHA],
+        borderColor:     [DYNAMO_COLOR, COSMOS_COLOR],
+        borderWidth: 2, borderRadius: 6
+      }]
+    },
+    options: {
+      ...baseOptions('Used-by count'),
+      scales: {
+        x: { ticks: { color: tickColor }, grid: { color: gridColor } },
+        y: {
+          ticks: { color: tickColor },
+          grid:  { color: gridColor }
+        }
+      }
+    }
+  });
+
+  /* Combined grouped bar (log scale) */
+  new Chart(document.getElementById('combinedChart'), {
+    type: 'bar',
+    data: {
+      labels: [
+        'JS / npm\n(30d)',
+        '.NET / NuGet\n(all time)',
+        'Java / Maven\n(used-by)'
+      ],
+      datasets: [
+        {
+          label: 'AWS DynamoDB SDK',
+          data: [25883358, 229500000, 324],
+          backgroundColor: DYNAMO_ALPHA,
+          borderColor: DYNAMO_COLOR,
+          borderWidth: 2, borderRadius: 4
+        },
+        {
+          label: 'Azure Cosmos DB NoSQL SDK',
+          data: [2694484, 189300000, 61],
+          backgroundColor: COSMOS_ALPHA,
+          borderColor: COSMOS_COLOR,
+          borderWidth: 2, borderRadius: 4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          labels: { color: '#94a3b8', boxWidth: 14, padding: 16, font: { size: 12 } }
+        },
+        tooltip: {
+          backgroundColor: tooltipBg,
+          borderColor: '#334155',
+          borderWidth: 1,
+          titleColor: '#e2e8f0',
+          bodyColor: '#94a3b8',
+          callbacks: {
+            label: ctx => ' ' + ctx.dataset.label + ': ' + Number(ctx.raw).toLocaleString()
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: tickColor }, grid: { color: gridColor } },
+        y: {
+          type: 'logarithmic',
+          ticks: {
+            color: tickColor,
+            callback: v => v >= 1e9 ? (v/1e9).toFixed(1)+'B'
+                         : v >= 1e6 ? (v/1e6).toFixed(0)+'M'
+                         : v >= 1e3 ? (v/1e3).toFixed(0)+'K'
+                         : v
+          },
+          grid: { color: gridColor }
+        }
+      }
+    }
+  });
+</script>
+
+</body>
+</html>

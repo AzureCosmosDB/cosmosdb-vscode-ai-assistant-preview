@@ -1,0 +1,51 @@
+name: Private Preview Package Validation
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  validate-preview:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate preview docs and scripts exist
+        shell: bash
+        run: |
+          test -f README.md
+          test -f preview-manifest.json
+          test -f scripts/validate-preview-manifest.ps1
+          test -f scripts/build-private-preview.ps1
+          test -f docs/INSTALLATION.md
+          test -f docs/TESTING.md
+          test -f docs/TROUBLESHOOTING.md
+
+      - name: Validate manifest schema and checksums (if artifacts exist)
+        shell: pwsh
+        run: |
+          if (Test-Path "downloads") {
+            $artifactCount = Get-ChildItem downloads -File -Filter *.vsix -ErrorAction SilentlyContinue | Measure-Object | Select-Object -ExpandProperty Count
+            if ($artifactCount -gt 0) {
+              ./scripts/validate-preview-manifest.ps1 -ManifestPath preview-manifest.json
+            }
+            else {
+              Write-Host "No VSIX artifacts committed. Skipping checksum validation."
+            }
+          }
+
+      - name: Build preview bundle
+        shell: pwsh
+        run: |
+          ./scripts/build-private-preview.ps1 -ManifestPath preview-manifest.json -OutputDir dist
+
+      - name: Upload preview bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: private-preview-bundle
+          path: dist/*
