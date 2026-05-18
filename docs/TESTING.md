@@ -94,6 +94,61 @@ Pass criteria:
 
 - Assistant uses schema/history context without exposing document payloads.
 
+## Scenario 7: RDBMS to Cosmos DB NoSQL Migration — Spring PetClinic
+
+**Problem statement:** Spring PetClinic is a canonical normalized RDBMS application with six related tables (`owners`, `pets`, `visits`, `vets`, `specialties`, `vet_specialties`), foreign keys, and a many-to-many join table. Migrating it to Cosmos DB requires schema denormalization, domain grouping, partition key design, and application code changes — making it an ideal end-to-end candidate for validating the Migration Assistant.
+
+### Source Setup
+
+The Migration Assistant works in offline mode and auto-detects the source DB from SQL schema and data files — no running database is required.
+
+1. Clone the [Spring PetClinic repository](https://github.com/spring-projects/spring-petclinic).
+2. Point the Migration Assistant at one of the following source file sets (pick one or bring your own RDBMS):
+   - **PostgreSQL:** `src/main/resources/db/postgres/schema.sql` and `data.sql`
+   - **MySQL:** `src/main/resources/db/mysql/schema.sql` and `data.sql`
+
+> **Optional — live database connection:** A running Docker-based database can also be used:
+>
+> ```
+> docker compose up postgres
+> ```
+>
+> or
+>
+> ```
+> docker compose up mysql
+> ```
+>
+> See the [Spring PetClinic README](https://github.com/spring-projects/spring-petclinic#database-configuration) for Docker setup details.
+
+**Alternative — Bring Your Own RDBMS scenario:** Use any other RDBMS schema/sample data (Oracle, SQL Server, Db2, PostgreSQL, MySQL) and Application Code to test RDBMS to NoSQL with Azure Cosmos DB Migration Assistant.
+
+### Workflow
+
+Run the Migration Assistant (`Azure Cosmos DB: New Migration…`) and proceed through all five steps:
+
+1. Collect source schema and workload details.
+2. Group and analyze relational tables into domains.
+3. Design target Cosmos DB container(s) data model.
+4. Provision target Cosmos DB resources in Azure or local Emulator.
+5. Generate (and optionally run) an application code migration plan using Copilot Chat.
+
+### Expected Artifacts in `.cosmosdb-migration/`
+
+- Source schema capture
+- Domain grouping output
+- Container design recommendation (with partition key justification)
+- Provisioning configuration
+- Application code migration plan
+
+### Pass Criteria
+
+- All five workflow steps complete without errors.
+- Container model recommendation includes a justified partition key.
+- `.cosmosdb-migration/` folder is populated and can be committed to source control.
+
+For step-by-step detail and outputs examples for each phase, see the [Azure Cosmos DB Migration Assistant (Preview) documentation](https://review.learn.microsoft.com/en-us/azure/cosmos-db/vscode-extension/cosmos-db-migration-assistant?branch=pr-en-us-354).
+
 ## Negative And Resilience Tests
 
 - Copilot unavailable: graceful error and recovery guidance.

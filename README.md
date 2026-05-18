@@ -17,15 +17,19 @@ The preview package is focused on validating:
 	- `/question`
 	- `/help`
 - Query-aware assistance using schema sampling and query history context.
+- RDBMS to Cosmos DB NoSQL schema analysis and container model design.
+- Application code migration plan generation via Copilot Chat.
 
 ## Quick Start
 
 1. Download the private preview artifacts from the release page.
 2. Install the provided VS Code extension `.vsix`.
 3. Ensure GitHub Copilot Chat is enabled in VS Code.
-4. Connect to an Azure Cosmos DB NoSQL account using the extension.
-5. Open Query Editor and test generation/explanation flows.
-6. Open Chat and test `@cosmosdb` command and natural language flows.
+4. Open a workspace folder in VS Code (required for Migration Assistant artifact output).
+5. Connect to an Azure Cosmos DB NoSQL account using the extension.
+6. Open Query Editor and test generation/explanation flows.
+7. Open Chat and test `@cosmosdb` command and natural language flows.
+8. Use `Azure Cosmos DB: New Migration…` to validate the Migration Assistant.
 
 Detailed steps are in:
 

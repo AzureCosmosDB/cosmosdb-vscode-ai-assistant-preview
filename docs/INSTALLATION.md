@@ -71,6 +71,13 @@ Create or update `.vscode/settings.json`:
 
 Use only settings approved by your organization policy.
 
+## 7. Validate Migration Assistant (RDBMS → Cosmos DB NoSQL)
+
+You can launch and manage RDBMS to Cosmos DB NoSQL migrations using Azure Workspace:
+
+- **`Azure Cosmos DB: New Migration…`**  
+  Opens Migration Assistant and creates a `.cosmosdb-migration/` project in the selected workspace folder.
+
 ## Upgrade to New Preview Build
 
 1. Uninstall old preview extension build.
