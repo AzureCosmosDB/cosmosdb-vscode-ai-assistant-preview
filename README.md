@@ -43,7 +43,7 @@ Release files should be published from GitHub Releases and mirrored in `download
 
 Expected core artifact:
 
-- `vscode-cosmosdb-0.33.3.vsix`
+- `vscode-cosmosdb-0.33.5.vsix`
 
 See:
 
