@@ -4,7 +4,7 @@ This folder tracks metadata and structure for private preview artifacts.
 
 ## Expected Artifact Naming
 
-- `vscode-cosmosdb-0.33.3.vsix`
+- `vscode-cosmosdb-0.33.5.vsix`
 
 ## Distribution Model
 

@@ -7,11 +7,11 @@ This guide describes how private preview participants can install and validate t
 - Visual Studio Code `1.103+` (Stable or Insiders)
 - Azure account with access to an Azure Cosmos DB NoSQL account
 - GitHub Copilot and GitHub Copilot Chat enabled in VS Code
-- Preview artifact: `vscode-cosmosdb-0.33.3.vsix`
+- Preview artifact: `vscode-cosmosdb-0.33.5.vsix`
 
 ## 1. Install Preview VSIX
 
-1. Download `vscode-cosmosdb-0.33.3.vsix` from the release page.
+1. Download `vscode-cosmosdb-0.33.5.vsix` from the [release page](https://github.com/AzureCosmosDB/cosmosdb-vscode-ai-assistant-preview/releases/tag/untagged-47a45f8b45b5db8a6915).
 2. Open VS Code.
 3. Open Extensions view (`Ctrl+Shift+X` / `Cmd+Shift+X`).
 4. Select `...` -> `Install from VSIX...`.
